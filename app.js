@@ -1,293 +1,217 @@
-app.js
-
 import {
-  createReport,
-  getReports
+  db,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  query,
+  orderBy
 } from "./firebase.js";
 
 import {
-  validateReport
-} from "./validation.js";
+  qs,
+  getDayName,
+  toast,
+  showLoader,
+  hideLoader
+} from "./helpers.js";
+
+import { validateForm } from "./validation.js";
 
 import {
-  printReport
-} from "./print.js";
+  saveLocal,
+  loadLocal
+} from "./storage.js";
 
-let reports = [];
+import { printReport } from "./print.js";
 
-function gv(id){
+import { createRecordCard } from "./ui.js";
 
-  return document
-    .getElementById(id)
-    ?.value
-    ?.trim();
+const saveBtn = qs("#saveBtn");
 
-}
+const printBtn = qs("#printBtn");
 
-function toast(msg,type="success"){
+const dateGreg = qs("#dateGreg");
 
-  const colors = {
+const dayName = qs("#dayName");
 
-    success:"#198754",
-    danger:"#dc3545",
-    info:"#0d6efd"
+const recordsContainer = qs("#recordsContainer");
 
-  };
+dateGreg.addEventListener("change", () => {
 
-  const div =
-    document.createElement("div");
+  dayName.value = getDayName(
+    dateGreg.value
+  );
+});
 
-  div.style.cssText = `
-    background:${colors[type]};
-    color:#fff;
-    padding:12px 20px;
-    border-radius:10px;
-    margin-top:10px;
-    font-weight:700;
-  `;
-
-  div.textContent = msg;
-
-  document
-    .getElementById("toastZone")
-    .appendChild(div);
-
-  setTimeout(()=>{
-
-    div.remove();
-
-  },3000);
-
-}
-
-function showLoader(){
-
-  document
-    .getElementById("loader")
-    .style.display = "flex";
-
-}
-
-function hideLoader(){
-
-  document
-    .getElementById("loader")
-    .style.display = "none";
-
-}
-
-function collectForm(){
+function getFormData() {
 
   return {
 
-    dateGreg:
-      gv("dateGreg"),
+    dateGreg: qs("#dateGreg").value,
 
-    dayName:
-      gv("dayName"),
+    dayName: qs("#dayName").value,
 
-    station:
-      gv("station"),
+    station: qs("#station").value,
 
-    city:
-      gv("city"),
+    city: qs("#city").value,
 
-    nasah_nat:
-      gv("nasah_nat"),
+    production: {
 
-    nasah_low:
-      gv("nasah_low"),
+      nasah: {
+        normal: qs("#nasah_nat").value,
+        low: qs("#nasah_low").value,
+        reason: qs("#nasah_reason").value
+      },
 
-    nasah_reason:
-      gv("nasah_reason"),
+      manf: {
+        normal: qs("#manf_nat").value,
+        low: qs("#manf_low").value,
+        reason: qs("#manf_reason").value
+      }
+    },
 
-    manf_nat:
-      gv("manf_nat"),
+    quality: {
 
-    manf_low:
-      gv("manf_low"),
+      ph: qs("#q_raw_ph").value,
 
-    manf_reason:
-      gv("manf_reason"),
+      turbidity: qs("#q_raw_turb").value,
 
-    q_raw_ph:
-      gv("q_raw_ph"),
+      tds: qs("#q_raw_tds").value,
 
-    q_raw_turb:
-      gv("q_raw_turb"),
-
-    q_raw_tds:
-      gv("q_raw_tds"),
-
-    q_raw_temp:
-      gv("q_raw_temp")
-
+      temp: qs("#q_raw_temp").value
+    }
   };
-
 }
 
-async function saveReport(){
+saveBtn.addEventListener("click", async () => {
 
-  try{
+  const data = getFormData();
 
-    const data =
-      collectForm();
+  if (!validateForm(data)) return;
 
-    const validation =
-      validateReport(data);
-
-    if(!validation.valid){
-
-      toast(
-        validation.errors.join("\n"),
-        "danger"
-      );
-
-      return;
-    }
+  try {
 
     showLoader();
 
-    await createReport(data);
+    saveLocal(data);
 
-    toast(
-      "تم حفظ التقرير"
+    await addDoc(
+      collection(db, "reports"),
+      {
+        ...data,
+        createdAt: serverTimestamp()
+      }
     );
 
-    await loadReports();
+    toast("تم حفظ التقرير بنجاح");
 
-  }catch(err){
+    loadReports();
 
-    console.error(err);
+  } catch (error) {
 
-    toast(
-      "حدث خطأ",
-      "danger"
-    );
+    console.error(error);
 
-  }finally{
+    toast("فشل الحفظ", "danger");
+
+  } finally {
 
     hideLoader();
-
   }
+});
 
-}
+printBtn.addEventListener("click", () => {
 
-async function loadReports(){
+  const data = getFormData();
 
-  reports =
-    await getReports();
+  if (!validateForm(data)) return;
 
-  renderReports();
+  printReport(data);
+});
 
-}
+async function loadReports() {
 
-function renderReports(){
+  try {
 
-  const container =
-    document.getElementById(
-      "recordsContainer"
+    recordsContainer.innerHTML = "";
+
+    const q = query(
+      collection(db, "reports"),
+      orderBy("createdAt", "desc")
     );
 
-  if(!reports.length){
+    const snapshot = await getDocs(q);
 
-    container.innerHTML = `
-      <p class="text-center text-muted">
-        لا توجد تقارير
-      </p>
-    `;
+    snapshot.forEach((docItem) => {
 
-    return;
+      const data = {
+        id: docItem.id,
+        ...docItem.data()
+      };
 
+      recordsContainer.innerHTML +=
+        createRecordCard(data);
+    });
+
+    bindDelete();
+
+  } catch (error) {
+
+    console.error(error);
   }
-
-  container.innerHTML =
-    reports.map(r=>`
-
-    <div class="border rounded p-3 mb-2">
-
-      <div class="fw-bold">
-
-        ${r.dateGreg}
-
-      </div>
-
-      <div>
-
-        ${r.station}
-
-      </div>
-
-      <div class="mt-2 d-flex gap-2">
-
-        <button
-          class="btn btn-sm btn-primary"
-          onclick='window.printCurrent(${JSON.stringify(r)})'
-        >
-          طباعة
-        </button>
-
-      </div>
-
-    </div>
-
-  `).join("");
-
 }
 
-window.printCurrent = function(r){
+function bindDelete() {
 
-  printReport(r);
+  const buttons =
+    document.querySelectorAll(".delete-btn");
 
-};
+  buttons.forEach((btn) => {
 
-document
-  .getElementById("saveBtn")
-  .addEventListener(
-    "click",
-    saveReport
-  );
+    btn.addEventListener("click", async () => {
 
-document
-  .getElementById("printBtn")
-  .addEventListener(
-    "click",
-    ()=>{
+      const id = btn.dataset.id;
 
-      printReport(
-        collectForm()
-      );
+      if (!confirm("حذف التقرير؟")) return;
 
-    }
-  );
+      try {
 
-document
-  .getElementById("dateGreg")
-  .addEventListener(
-    "change",
-    function(){
+        await deleteDoc(
+          doc(db, "reports", id)
+        );
 
-      const days = [
+        toast("تم الحذف");
 
-        "الأحد",
-        "الاثنين",
-        "الثلاثاء",
-        "الأربعاء",
-        "الخميس",
-        "الجمعة",
-        "السبت"
+        loadReports();
 
-      ];
+      } catch (error) {
 
-      document
-        .getElementById("dayName")
-        .value =
-        days[
-          new Date(this.value)
-          .getDay()
-        ];
+        toast("فشل الحذف", "danger");
+      }
+    });
+  });
+}
 
-    }
-  );
+window.addEventListener("DOMContentLoaded", () => {
 
-loadReports();
+  const localData = loadLocal();
+
+  if (localData) {
+
+    qs("#dateGreg").value =
+      localData.dateGreg || "";
+
+    qs("#dayName").value =
+      localData.dayName || "";
+
+    qs("#station").value =
+      localData.station || "";
+
+    qs("#city").value =
+      localData.city || "";
+  }
+
+  loadReports();
+});

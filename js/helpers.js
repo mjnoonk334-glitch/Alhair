@@ -1,4 +1,4 @@
-// js/helpers.js
+
 
 export const qs = (el) => document.querySelector(el);
 

@@ -94,19 +94,18 @@ table th{
   border-color:red !important;
 }
 
-@media print{
+@media print {
 
   body{
-    background:white;
-    padding:0;
+    background:#fff;
   }
 
-  button{
+  .no-print{
     display:none;
   }
 
-  .card{
-    box-shadow:none;
+  table{
+    page-break-inside:avoid;
   }
 
 }

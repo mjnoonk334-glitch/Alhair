@@ -1,81 +1,349 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>نظام التقارير اليومية</title>
 
-  <link rel="stylesheet" href="./assets/css/style.css"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
-  <script type="module" src="./assets/js/app.js" defer></script>
+  <title>نظام تقرير التشغيل اليومي</title>
+
+  <!-- Bootstrap -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  />
+
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <!-- Print CSS -->
+  <link rel="stylesheet" href="./css/print.css" />
 </head>
 
 <body>
 
-  <div class="container">
+  <!-- =========================
+       TOP NAVBAR
+  ========================== -->
+  <header class="top-nav no-print">
 
-    <header class="header">
-      <h1>نظام التقارير اليومية</h1>
-      <p>إدارة التقارير والتشغيل والصيانة</p>
-    </header>
+    <div class="logo-box">
 
-    <section class="card">
+      <div class="logo-icon">
+        <i class="bi bi-droplet-fill"></i>
+      </div>
 
-      <div class="grid">
+      <div>
+        <h1>نظام تقرير التشغيل اليومي</h1>
+        <p>وكالة تنقية المياه الجوفية</p>
+      </div>
 
-        <div class="field">
-          <label>التاريخ</label>
-          <input type="date" id="date"/>
-        </div>
+    </div>
 
-        <div class="field">
-          <label>اسم المشغل</label>
-          <input type="text" id="operator"/>
-        </div>
+    <div class="d-flex gap-2">
 
-        <div class="field">
-          <label>درجة الحرارة</label>
-          <input type="number" id="temperature"/>
-        </div>
+      <button
+        class="btn btn-success"
+        id="saveBtn"
+      >
+        <i class="bi bi-save-fill"></i>
+        حفظ
+      </button>
 
-        <div class="field">
-          <label>مستوى PH</label>
-          <input type="number" step="0.1" id="ph"/>
-        </div>
+      <button
+        class="btn btn-warning"
+        id="printBtn"
+      >
+        <i class="bi bi-printer-fill"></i>
+        طباعة
+      </button>
 
-        <div class="field">
-          <label>العكارة</label>
-          <input type="number" step="0.1" id="turbidity"/>
+    </div>
+
+  </header>
+
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+  <main class="container-fluid py-3">
+
+    <!-- =========================
+         STATION INFORMATION
+    ========================== -->
+    <section class="card-box">
+
+      <div class="sec-title">
+        معلومات المحطة
+      </div>
+
+      <div class="p-3">
+
+        <div class="row g-3">
+
+          <div class="col-md-3">
+            <label class="form-label">
+              التاريخ الميلادي
+            </label>
+
+            <input
+              type="date"
+              class="form-control"
+              id="dateGreg"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">
+              اليوم
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              id="dayName"
+              readonly
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">
+              المحطة
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              id="station"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">
+              المدينة
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              id="city"
+              value="الرياض"
+            />
+          </div>
+
         </div>
 
       </div>
 
-      <div class="actions">
-        <button id="saveBtn">حفظ التقرير</button>
-        <button id="printBtn">طباعة</button>
+    </section>
+
+    <!-- =========================
+         PRODUCTION SECTION
+    ========================== -->
+    <section class="card-box mt-3">
+
+      <div class="sec-title">
+        الإنتاج
+      </div>
+
+      <div class="table-responsive">
+
+        <table class="table table-bordered align-middle text-center">
+
+          <thead>
+            <tr>
+              <th>المحطة</th>
+              <th>الإنتاج الطبيعي</th>
+              <th>الإنتاج المنخفض</th>
+              <th>سبب الانخفاض</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <!-- نساح -->
+            <tr>
+
+              <td>نساح</td>
+
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="nasah_nat"
+                />
+              </td>
+
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="nasah_low"
+                />
+              </td>
+
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nasah_reason"
+                />
+              </td>
+
+            </tr>
+
+            <!-- منفوحة -->
+            <tr>
+
+              <td>منفوحة</td>
+
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="manf_nat"
+                />
+              </td>
+
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="manf_low"
+                />
+              </td>
+
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="manf_reason"
+                />
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
       </div>
 
     </section>
 
-    <section class="card">
-      <h2>سجل التقارير</h2>
+    <!-- =========================
+         WATER QUALITY
+    ========================== -->
+    <section class="card-box mt-3">
 
-      <table>
-        <thead>
-          <tr>
-            <th>التاريخ</th>
-            <th>المشغل</th>
-            <th>PH</th>
-            <th>الحرارة</th>
-            <th>العكارة</th>
-          </tr>
-        </thead>
+      <div class="sec-title">
+        جودة المياه
+      </div>
 
-        <tbody id="reportsTable"></tbody>
-      </table>
+      <div class="p-3">
+
+        <div class="row g-3">
+
+          <div class="col-md-3">
+            <label class="form-label">pH</label>
+
+            <input
+              type="number"
+              step="0.1"
+              class="form-control"
+              id="q_raw_ph"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Turbidity</label>
+
+            <input
+              type="number"
+              step="0.01"
+              class="form-control"
+              id="q_raw_turb"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">TDS</label>
+
+            <input
+              type="number"
+              class="form-control"
+              id="q_raw_tds"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Temp °C</label>
+
+            <input
+              type="number"
+              class="form-control"
+              id="q_raw_temp"
+            />
+          </div>
+
+        </div>
+
+      </div>
+
     </section>
 
+    <!-- =========================
+         SAVED REPORTS
+    ========================== -->
+    <section class="card-box mt-3">
+
+      <div class="sec-title">
+        التقارير المحفوظة
+      </div>
+
+      <div
+        class="p-3"
+        id="recordsContainer"
+      ></div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================
+       PRINT PAGE
+  ========================== -->
+  <div id="print-page"></div>
+
+  <!-- =========================
+       LOADER
+  ========================== -->
+  <div id="loader">
+    <div class="spinner-border text-light"></div>
   </div>
+
+  <!-- =========================
+       TOAST AREA
+  ========================== -->
+  <div id="toastZone"></div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Main App -->
+  <script
+    type="module"
+    src="./js/app.js"
+  ></script>
 
 </body>
 </html>

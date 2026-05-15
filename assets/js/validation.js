@@ -1,30 +1,21 @@
-export function validateForm(data){
+import { toast } from "./helpers.js";
 
-  const errors = [];
+export function validateForm(data) {
 
-  if(!data.date){
-    errors.push("التاريخ مطلوب");
+  if (!data.dateGreg) {
+    toast("يرجى إدخال التاريخ", "danger");
+    return false;
   }
 
-  if(!data.operator){
-    errors.push("اسم المشغل مطلوب");
+  if (!data.station) {
+    toast("يرجى إدخال اسم المحطة", "danger");
+    return false;
   }
 
-  if(data.ph < 6.5 || data.ph > 8.5){
-    errors.push("قيمة PH غير صحيحة");
+  if (!data.city) {
+    toast("يرجى إدخال المدينة", "danger");
+    return false;
   }
 
-  if(data.temperature < 0 || data.temperature > 60){
-    errors.push("درجة الحرارة غير منطقية");
-  }
-
-  if(data.turbidity < 0){
-    errors.push("العكارة غير صحيحة");
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-
+  return true;
 }

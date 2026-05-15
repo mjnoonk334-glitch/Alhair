@@ -1,84 +1,41 @@
-export function printReport(report){
+import { qs } from "./helpers.js";
 
-  const html = `
-  
-  <html dir="rtl">
+export function printReport(data) {
 
-    <head>
+  const printPage = qs("#print-page");
 
-      <title>طباعة تقرير</title>
+  printPage.innerHTML = `
 
-      <style>
+  <div class="print-wrapper">
 
-        body{
-          font-family:Tahoma;
-          padding:40px;
-        }
+    <h2>تقرير التشغيل اليومي</h2>
 
-        h1{
-          margin-bottom:30px;
-        }
+    <table class="table table-bordered">
 
-        table{
-          width:100%;
-          border-collapse:collapse;
-        }
+      <tr>
+        <td>التاريخ</td>
+        <td>${data.dateGreg}</td>
+      </tr>
 
-        td,th{
-          border:1px solid #000;
-          padding:12px;
-          text-align:center;
-        }
+      <tr>
+        <td>اليوم</td>
+        <td>${data.dayName}</td>
+      </tr>
 
-      </style>
+      <tr>
+        <td>المحطة</td>
+        <td>${data.station}</td>
+      </tr>
 
-    </head>
+      <tr>
+        <td>المدينة</td>
+        <td>${data.city}</td>
+      </tr>
 
-    <body>
+    </table>
 
-      <h1>التقرير اليومي</h1>
-
-      <table>
-
-        <tr>
-          <th>التاريخ</th>
-          <td>${report.date}</td>
-        </tr>
-
-        <tr>
-          <th>المشغل</th>
-          <td>${report.operator}</td>
-        </tr>
-
-        <tr>
-          <th>PH</th>
-          <td>${report.ph}</td>
-        </tr>
-
-        <tr>
-          <th>الحرارة</th>
-          <td>${report.temperature}</td>
-        </tr>
-
-        <tr>
-          <th>العكارة</th>
-          <td>${report.turbidity}</td>
-        </tr>
-
-      </table>
-
-    </body>
-
-  </html>
-  
+  </div>
   `;
 
-  const win = window.open();
-
-  win.document.write(html);
-
-  win.document.close();
-
-  win.print();
-
+  window.print();
 }
